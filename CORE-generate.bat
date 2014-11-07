@@ -2,7 +2,7 @@
 set COREdirectory=C:\GH\oomlout-CORE\
 
 
-set PRODDirectory=C:\DB\Dropbox\erpe\data\PROD-data\
+set PRODDirectory=C:\GH\PROJECTS\oomlout-WHSN\
 
 set FILEName=L-BREB-01.cdr
 
@@ -13,7 +13,7 @@ REM Generate Image Resolution Single
 REM
 
 	REM      Generate Single Image
-python %COREdirectory%COREmain.py -fi %PRODDirectory%%FILEName% -re 140,420,1500
+REM python %COREdirectory%COREmain.py -fi %PRODDirectory%%FILEName% -re 140,420,1500
 
 	REM      Generate Directory Of Images
-REM python %IMAGdirectory%IMAGmain.py -di %PRODDirectory% -re 140,420,1500
+python %COREdirectory%COREmain.py -di %PRODDirectory% -re 140,420,1500 -ex working,laser

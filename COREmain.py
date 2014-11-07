@@ -2,8 +2,12 @@
 
 import sys, os
 import time
+import win32gui
 import win32com
 import win32com.client
+import psutil
+import win32clipboard
+
 
 import argparse
 
@@ -11,6 +15,7 @@ parser = argparse.ArgumentParser(description='OOMLOUT-CORE -- Corel Draw Export 
 parser.add_argument('-fi','--file', help='absolute name for a single file to generate files for', required=False)
 parser.add_argument('-di','--directory', help='directory to recursivly go through to generate files for', required=False)
 parser.add_argument('-re','--resolutions', help='resolutions to generate, seperated by a comma output filename is original image name with _RESOLUTION added', required=False)
+parser.add_argument('-ex','--extra', help='extra string to look for in filename before generating files for (ie. working,laser) (comma seperated list)', required=False)
 
 args = vars(parser.parse_args())
 
@@ -24,9 +29,25 @@ args = vars(parser.parse_args())
 shell = win32com.client.Dispatch("WScript.Shell")
 
 sleepTimeLong = 5
-sleepTime = 1
+sleepTime = 2
 
 
+
+def COREwait():
+	print "COREWAIT"
+	
+	cpuUsageComp = 100
+	while cpuUsageComp > 5:
+		cpuUsage = 0
+		for i in range (1,10):
+			cpuUsage = psutil.cpu_percent(interval=0.25) + cpuUsage
+			sys.stdout.write('.')
+			#print cpuUsage/i
+		cpuUsageComp = cpuUsage / 10
+		#time.sleep(0.1)
+		sys.stdout.write('(' + str(cpuUsageComp) + ')')
+	print ""	
+		
 
 def COREsendMultiple(key, repeat):
 	for e in range (0,repeat):
@@ -42,55 +63,369 @@ def COREsleep(type):
 	if type == "":
 		time.sleep(sleepTime)
 
-def COREexportType(type, file):
-	if type == "svg":
-		ind = 15
-	if type == "dxf":
-		ind = 33
-	COREexportIndex(ind, file)
-
-def COREexportIndex(ind, file):
-	#export
-	COREsend("^e")
-	#go to type
-	COREsend(file)
-	COREsend("{tab}")
-	#scroll to bottom
-	COREsend("{DOWN}")
-	COREsendMultiple("{PGDN}", 4)
-	#go up to SVG
-	COREsendMultiple("{up}", ind)
-	#select
-	COREsend("{ENTER}")
-	#save
-	COREsend("{ENTER}")
-	#overwrite
+def COREcloseWindow():
+	print "    Close window"
+	#move left
+	COREsend("{left}")
+	#move right
+	COREsend("{right}")
+	COREsend("%f")
+	COREsend("c")
+	#save changes
+	COREsend("n")
+	#keep clipboard 
 	COREsend("y")
-	#save
-	COREsend("{ENTER}")
-	#delay
-	COREsleep("long")
 
+def COREexportType(fileName, type, resolution):
+	if type == "pdf":
+		COREexportPDF(fileName)
+	elif type == "pdfz":		
+		COREexportPDFSpecial(fileName)
+	else:
+		COREexportTypeSimple(fileName, type, resolution)
+
+def COREexportPDFSpecial(fileName):
+	print "     Generating Files For: " + fileName 
+	file = fileName.split(".")[0]
+	os.system("start " + fileName)
+
+	COREwait()
+
+	print "DONE LOADING"
+	#Select all
+	print "    Select all"
+	COREsend("^a")
+
+	#get dimensions
+	print "    Getting Dimensions"
+	COREsend("^{enter}")
+	#getWidth
+	COREsendMultiple("{tab}",2)
+	COREsend("^c")
+	win32clipboard.OpenClipboard()
+	width = win32clipboard.GetClipboardData()
+	win32clipboard.CloseClipboard()
+	width = width.replace(" mm", "")
+	print "        Width:  " + width
+	#getHeight
+	COREsend("{tab}")
+	COREsend("^c")
+	win32clipboard.OpenClipboard()
+	height = win32clipboard.GetClipboardData()
+	win32clipboard.CloseClipboard()
+	height = height.replace(" mm", "")
+	print "        Height:  " + height
+	#get back to main window
+	COREsend("{enter}")
+
+	#Select all
+	print "    Select all"
+	COREsend("^a")
+	#Copy
+	print "    Copy"
+	COREsend("^c")
+	COREwait()
+
+
+	#Clsoe Window
+	COREcloseWindow()
+	
+	
+	#decide template
+	mode = "P" #default portrait
+	if width > height:
+		mode = "L"
+	
+	testDimension = max(int(float(height)), int(float(width)))
+	otherDimension = min(int(float(height)), int(float(width)))
+	
+	pw = 5000
+	ph = 5000
+	
+	size = "BIG"
+	if testDimension < 1189 and otherDimension < 841 :
+		size = "A0"
+		if mode == "L":
+			pw = 1189
+			ph = 841
+		else:
+			pw = 841
+			ph = 1189			
+	if testDimension < 841 and otherDimension < 594 :
+		size = "A1"
+		if mode == "L":
+			pw = 841
+			ph = 594
+		else:
+			pw = 594
+			ph = 841
+	if testDimension < 594 and otherDimension < 420 :
+		size = "A2"
+		if mode == "L":
+			pw = 594
+			ph = 420
+		else:
+			pw = 420 
+			ph = 594		
+	if testDimension < 420 and otherDimension < 297 :
+		size = "A3"		
+		if mode == "L":
+			pw = 420
+			ph = 297
+		else:
+			pw = 297 
+			ph = 420		
+	if testDimension < 297 and otherDimension < 210 :
+		size = "A4"
+		if mode == "L":
+			pw = 297
+			ph = 210
+		else:
+			pw = 210
+			ph = 297	 	
+	
+	templateName = "template/CORE-pdf-" + size + "-" + mode + ".cdr"
+	#opening template
+	print "    Opening Template: " + templateName
+	os.system("start " + templateName)
+	COREwait()
+	
+	
+	#paste
+	print "    Paste"
+	COREsend("^v")
+	COREwait()
+	
+	#position in middle of page
+	print "    Set in middle of page"
+	COREsend("^{enter}")
+	COREsend(pw/2)
+	COREsend("{tab}")
+	COREsend(ph/2)
+	COREsend("{enter}")
+	
+	#publish PDF
+	print "    PublishingPDF"
+	COREsend("%f")
+	COREsend("h")
+	
+	#Selecting Resolution"
+	print "    Selecting Quality"
+	COREsendMultiple("{tab}", 2)
+	COREsend("fff")
+	COREsendMultiple("+{tab}", 2)
+	
+	#Send FileName
+	print "    Sending FileName"
+	COREsend(file)
+	COREsend("_S")
+	
+	#Save
+	print "    Save"
+	COREsend("{enter}")
+	
+	#Overwrite
+	print "    Overwrite"
+	COREsend("y")
+	
+	#Close Window
+	COREcloseWindow()
+
+	
+	
+	
+	
 
 #
 def COREgenerateFiles(fileName, resolutions):
+	COREexportType(fileName, "pdfz", "")
+	COREexportType(fileName, "pdf", "")
+	COREexportType(fileName, "svg", "")
+	COREexportType(fileName, "dxf", "")
+	COREexportType(fileName, "ai", "")
+	COREexportType(fileName, "eps", "")
+	
+	for r in resolutions:
+		COREexportType(fileName, "png", r)
 
-	pass
+
+def COREgenerateAllFiles(directoryName, resolutions, extras):
+	"Generating Resolutions for: " + directoryName
+	for root, _, files in os.walk(directoryName):
+		for f in files:
+			fullName = os.path.join(root, f)
+			try:
+				type= f.split(".")[1]
+			except IndexError:
+				type = ""
+
+			#time.sleep(1)
+
+			#make +01 etc okay (fails if more than 10 images
+			print type
+			if type.lower() in ".cdr" and not "backup" in f.lower():
+				for g in extras:
+					print "G: " + g + "     " + f
+					if g in f:
+						print "    Generating for File: " + f + "  type: "  + type
+						COREgenerateFiles(fullName, resolutions)
+						break
+
+
+def COREexportPDF(fileName):
 	print "     Generating Files For: " + fileName
-	fileStart = fileName.split(".")[0]
+	file = fileName.split(".")[0]
 	os.system("start " + fileName)
-	time.sleep(sleepTimeLong)
-	COREgenerateTypeSimple("svg", fileStart)
-	COREgenerateTypeSimple("dxf", fileStart)
+
+	COREwait()
+	
+	#publish PDF
+	print "    PublishingPDF"
+	COREsend("%f")
+	COREsend("h")
+	
+	#Selecting Resolution"
+	print "    Selecting Quality"
+	COREsendMultiple("{tab}", 2)
+	COREsend("fff")
+	COREsendMultiple("+{tab}", 2)
+	
+	#Send FileName
+	print "    Sending FileName"
+	COREsend(file)
+	
+	#Save
+	print "    Save"
+	COREsend("{enter}")
+	
+	#Overwrite
+	print "    Overwrite"
+	COREsend("y")
+	
+	#Close Window
+	COREcloseWindow()
 
 
 
-def COREgenerateTypeSimple(type, file):
+def COREexportTypeSimple(fileName, type, resolution):
+	print "     Generating Files For: " + fileName + "   Type: " + type
+	file = fileName.split(".")[0]
+	os.system("start " + fileName)
+
+	COREwait()
+
+	print "DONE LOADING"
+	#Select all
+	print "    Select all"
 	COREsend("^a")
-	COREexportType(type, file)
+	#Copy
+	print "    Copy"
+	COREsend("^c")
+	COREwait()
+	
+	#Clsoe Window
+	COREcloseWindow()
+	#make new file
+	print "    Make new file"
+	COREsend("^n")
+	COREwait()
+	#paste
+	print "    Paste"
+	COREsend("^v")
+	COREwait()
+	
+	
+	#export
+	print "    Exporting"
+	COREsend("^e")
+	#sending filename
+	COREsend(file)
+	if resolution <> "":
+		COREsend("_" + resolution)
+	
+	#go to type
+	print "    Going to type"
+	COREsend("{tab}")
+	#send type plus space
+	print "    Selecting " + type
+	COREsend("{down}")
+	COREsend(type)
+	COREsend(" ")
+	
+							#	#scroll to bottom
+							#	print "    Scroll to bottom"
+							#	COREsend("{DOWN}")
+							#	COREsendMultiple("{PGDN}", 4)
+							#	#go up to SVG
+							#	print "    Go up to " & ind
+							#	COREsendMultiple("{up}", ind)
+	#select
+	print "    Select"
 	COREsend("{ENTER}")
+	#save
+	print "    Save"
+	COREsend("{ENTER}")
+	#overwrite
+	print "    Overwrite"
+	COREsend("y")
+	
+	#test for png and adding resolution
+	if type == "png":
+		#adding resolution
+		print "        Adding Resolution"
+		COREsendMultiple("{tab}",2)
+		#select Pixels
+		COREsend("pix")
+		COREsend("{enter}")
+		#return to width
+		COREsendMultiple("+{tab}",2)
+		#send width
+		COREsend(resolution)
+		COREsend("{enter}")
+		COREwait()
+		COREsend("{enter}")
+	
+	#save
+	print "    Extra Enter"
+	COREsend("{ENTER}")
+	print "    Extra Enter"
+	COREsend("{ENTER}")
+	#delay
+	COREwait()
+	COREsend("{ENTER}")
+	#Close Window
+	COREcloseWindow()
 
 
+
+def COREgenerateAllFiles(directoryName, resolutions, extras):
+	"Generating Resolutions for: " + directoryName
+	for root, _, files in os.walk(directoryName):
+		for f in files:
+			fullName = os.path.join(root, f)
+			try:
+				type= f.split(".")[1]
+			except IndexError:
+				type = ""
+
+			#time.sleep(1)
+
+			#make +01 etc okay (fails if more than 10 images
+			print type
+			if type.lower() in ".cdr" and not "backup" in f.lower():
+				for g in extras:
+					print "G: " + g + "     " + f
+					if g in f:
+						print "    Generating for File: " + f + "  type: "  + type
+						COREgenerateFiles(fullName, resolutions)
+						break
+
+
+
+
+
+
+	
 
 
 
@@ -111,15 +446,24 @@ if args['resolutions'] <> None:
 	resolutionsString = args['resolutions']
 	resolutions = resolutionsString.split(",")
 
-print "Resolutions: "
-for b in resolutions:
-	print "    " + b
+extraString = ""
+extras = [""]
+if args['extra'] <> None:
+	extraString = args['extra']
+	extras = extraString.split(",")
+
+
+#print "Resolutions: "
+#for b in resolutions:
+#	print "    " + b
 
 
 
 
 if fileName <> "":
+	print "GENERATING FOR FILENAME"
 	COREgenerateFiles(fileName, resolutions)
 if directoryName <> "":
-	pass
+	print "GENERATING FOR DIRECTORY"
+	COREgenerateAllFiles(directoryName, resolutions, extras)
 #IMAGgenerateAllImages(directoryName, resolutions)

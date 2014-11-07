@@ -5,16 +5,17 @@ A command line python tool used for generating various file types from a corel d
 
 * -fi				-- Single File Name
 * -di				-- directory to iterate through
+* -ex				-- extra to check for (ie working or laser required in file name) (list seperated by comas)
 
 ## Details
 
 Takes in a .cdr file and generates
 * dxf
-* (planned) png (140, 300, 1500 width)
+* png (140, 300, 1500 width)
 * svg
-* (planned) pdf
-* (planned) ai
-* (planned) eps
+* pdf
+* ai
+* eps
 
 	
 

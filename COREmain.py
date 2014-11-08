@@ -496,6 +496,7 @@ def COREgenerateFromPDF(fullName, resolutions, extraDirectory):
 	#open template
 	templateName = "template/CORE-pdf-A4-P.cdr"
 	os.system("start " + templateName)
+	COREwait()
 	#import
 	print "    Importing"
 	COREsend("^i")

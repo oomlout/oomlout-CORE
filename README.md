@@ -7,6 +7,7 @@ A command line python tool used for generating various file types from a corel d
 * -di				-- directory to iterate through
 * -ex				-- extra to check for (ie working or laser required in file name) (list seperated by comas)
 * -ed				-- Extra directory added to output files (ie. gen/ to proof or seperate source from generated)
+* -fp				-- Generate values from PDF (if there use this mode TRUE)
 
 ## Details
 
@@ -18,6 +19,10 @@ Takes in a .cdr file and generates
 * ai
 * eps
 
+## For -fp mode
+* png (140, 300, 1500 width)
+* ai
+* eps
 	
 
 

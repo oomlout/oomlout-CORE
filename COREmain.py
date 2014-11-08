@@ -17,6 +17,7 @@ parser.add_argument('-di','--directory', help='directory to recursivly go throug
 parser.add_argument('-re','--resolutions', help='resolutions to generate, seperated by a comma output filename is original image name with _RESOLUTION added', required=False)
 parser.add_argument('-ex','--extra', help='extra string to look for in filename before generating files for (ie. working,laser) (comma seperated list)', required=False)
 parser.add_argument('-ed','--extraDirectory', help='Extra directory added to output files (ie. gen/ to proof or seperate source from generated)', required=False)
+parser.add_argument('-fp','--fromPDFs', help='generate subset from PDFs (for generated OOBB parts)', required=False)
 
 args = vars(parser.parse_args())
 
@@ -267,6 +268,24 @@ def COREgenerateFiles(fileName, resolutions, extraDirectory):
 		COREexportType(fileName, "png", r, extraDirectory)
 
 
+def COREgenerateFilesFromPDF(fileName, resolutions, extraDirectory):
+
+		#MAKE DIRRECTORY
+	newDir = os.path.dirname(fileName) + "/" + extraDirectory
+	print "     Making Directory: " + newDir
+	try:
+		os.stat(newDir)
+	except:
+		os.mkdir(newDir)
+
+	COREexportType(fileName, "pdfz", "", extraDirectory)
+	COREexportType(fileName, "dxf", "", extraDirectory)
+	COREexportType(fileName, "ai", "", extraDirectory)
+	COREexportType(fileName, "eps", "", extraDirectory)
+
+	for r in resolutions:
+		COREexportType(fileName, "png", r, extraDirectory)
+
 def COREgenerateAllFiles(directoryName, resolutions, extras, extraDirectory):
 	"Generating Resolutions for: " + directoryName
 	for root, _, files in os.walk(directoryName):
@@ -281,7 +300,7 @@ def COREgenerateAllFiles(directoryName, resolutions, extras, extraDirectory):
 
 			#make +01 etc okay (fails if more than 10 images
 			print type
-			if type.lower() in ".cdr" and not "backup" in f.lower():
+			if type.lower() in ".cdr" and not "backup" in f.lower() and not "_gen" in f.lower():
 				for g in extras:
 					print "G: " + g + "     " + f
 					if g in f:
@@ -436,7 +455,7 @@ def COREgenerateAllFiles(directoryName, resolutions, extras, extraDirectory):
 
 			#make +01 etc okay (fails if more than 10 images
 			print type
-			if type.lower() in ".cdr" and not "backup" in f.lower() and not ".git" in fullName:
+			if type.lower() in ".cdr" and not "backup" in f.lower()  and not "_gen" in f.lower() and not ".git" in fullName:
 				for g in extras:
 					print "G: " + g + "     " + f
 					if g in f:
@@ -446,12 +465,71 @@ def COREgenerateAllFiles(directoryName, resolutions, extras, extraDirectory):
 
 
 
+def COREgenerateAllFromPDFs(directoryName, resolutions, extraDirectory):
+	"Generating Resolutions for: " + directoryName
+	for root, _, files in os.walk(directoryName):
+		for f in files:
+			fullName = os.path.join(root, f)
+			try:
+				type= f.split(".")[1]
+			except IndexError:
+				type = ""
+
+			#time.sleep(1)
+
+			#make +01 etc okay (fails if more than 10 images
+			print "Type: " + type
+			if type.lower() in ".pdf" and not "backup" in f.lower() and not "_gen" in f.lower()  and not ".git" in fullName:
+				for g in extras:
+					print "G: " + g + "     " + f
+					if g in f:
+						print "    Generating for File: " + f + "  type: "  + type
+						COREgenerateFromPDF(fullName, resolutions, extraDirectory)
+						break
+	
 
 
+def COREgenerateFromPDF(fullName, resolutions, extraDirectory):
 
-
-
-
+	fileStart = fullName.split(".")[0]
+	
+	#open template
+	templateName = "template/CORE-pdf-A4-P.cdr"
+	os.system("start " + templateName)
+	#import
+	print "    Importing"
+	COREsend("^i")
+	COREwait()
+	print "    Typing Filename"
+	COREsend(fullName)
+	#pressingEnter
+	print "    PressingEnter"
+	COREsend("{enter}")
+	COREwait()
+	#Import as curves
+	print "    Import as curves"
+	COREsend("{enter}")
+	COREwait()
+	#Put on file
+	print "    Put on Page"
+	COREsend("{enter}")
+	COREwait()	
+	#save as cdr
+	print "    Saving File"
+	COREsend("^+s")
+	print "    Typing Name"
+	COREsend(fileStart)
+	print "    pressing Enter"
+	COREsend("{enter}")
+	print "    Overwrite"
+	COREsend("y")
+	COREcloseWindow()
+	#geenrating files
+	print "    Generating files"
+	COREgenerateFilesFromPDF(fileStart + ".cdr", resolutions, extraDirectory)
+	#renaming cdr file
+	print "renaming corel file to have _GEN at end"
+	os.rename(fileStart + ".cdr", fileStart + "_GEN.cdr")
 
 
 fileName = ""
@@ -462,7 +540,7 @@ if args['file'] <> None:
 directoryName = ""
 if args['directory'] <> None:
 	directoryName = args['directory']
-	print "Genrating Files for Directory: " + directoryName
+	print "Generating Files for Directory: " + directoryName
 
 resolutionsString = ""
 resolutions = [140,300,1500]
@@ -481,18 +559,23 @@ if args['extraDirectory'] <> None:
 	extraDirectory = args['extraDirectory']
 
 
+fromPDF=""
+if args['fromPDFs'] <> None:
+	fromPDF = args['fromPDFs']
 
 #print "Resolutions: "
 #for b in resolutions:
 #	print "    " + b
 
 
-
-
-if fileName <> "":
-	print "GENERATING FOR FILENAME"
-	COREgenerateFiles(fileName, resolutions, extraDirectory)
-if directoryName <> "":
-	print "GENERATING FOR DIRECTORY"
-	COREgenerateAllFiles(directoryName, resolutions, extras, extraDirectory)
-#IMAGgenerateAllImages(directoryName, resolutions)
+if fromPDF <> "":
+	print "GENERATING FROM PDFS"
+	COREgenerateAllFromPDFs(directoryName, resolutions, extraDirectory)
+else:
+	if fileName <> "":
+		print "GENERATING FOR FILENAME"
+		COREgenerateFiles(fileName, resolutions, extraDirectory)
+	if directoryName <> "":
+		print "GENERATING FOR DIRECTORY"
+		COREgenerateAllFiles(directoryName, resolutions, extras, extraDirectory)
+	#IMAGgenerateAllImages(directoryName, resolutions)

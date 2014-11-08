@@ -436,7 +436,7 @@ def COREgenerateAllFiles(directoryName, resolutions, extras, extraDirectory):
 
 			#make +01 etc okay (fails if more than 10 images
 			print type
-			if type.lower() in ".cdr" and not "backup" in f.lower():
+			if type.lower() in ".cdr" and not "backup" in f.lower() and not ".git" in fullName:
 				for g in extras:
 					print "G: " + g + "     " + f
 					if g in f:

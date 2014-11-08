@@ -256,8 +256,8 @@ def COREgenerateFiles(fileName, resolutions, extraDirectory):
 	except:
 		os.mkdir(newDir)
 
-	#COREexportType(fileName, "pdfz", "", extraDirectory)
-	#COREexportType(fileName, "pdf", "", extraDirectory)
+	COREexportType(fileName, "pdfz", "", extraDirectory)
+	COREexportType(fileName, "pdf", "", extraDirectory)
 	COREexportType(fileName, "svg", "", extraDirectory)
 	COREexportType(fileName, "dxf", "", extraDirectory)
 	COREexportType(fileName, "ai", "", extraDirectory)

@@ -264,7 +264,7 @@ def COREgenerateFiles(fileName, resolutions, extraDirectory):
 	COREexportType(fileName, "eps", "", extraDirectory)
 
 	for r in resolutions:
-		COREexportType(fileName, "png", r)
+		COREexportType(fileName, "png", r, extraDirectory)
 
 
 def COREgenerateAllFiles(directoryName, resolutions, extras, extraDirectory):

@@ -16,6 +16,7 @@ parser.add_argument('-fi','--file', help='absolute name for a single file to gen
 parser.add_argument('-di','--directory', help='directory to recursivly go through to generate files for', required=False)
 parser.add_argument('-re','--resolutions', help='resolutions to generate, seperated by a comma output filename is original image name with _RESOLUTION added', required=False)
 parser.add_argument('-ex','--extra', help='extra string to look for in filename before generating files for (ie. working,laser) (comma seperated list)', required=False)
+parser.add_argument('-ed','--extraDirectory', help='Extra directory added to output files (ie. gen/ to proof or seperate source from generated)', required=False)
 
 args = vars(parser.parse_args())
 
@@ -34,8 +35,6 @@ sleepTime = 2
 
 
 def COREwait():
-	print "COREWAIT"
-	
 	cpuUsageComp = 100
 	while cpuUsageComp > 5:
 		cpuUsage = 0
@@ -46,8 +45,8 @@ def COREwait():
 		cpuUsageComp = cpuUsage / 10
 		#time.sleep(0.1)
 		sys.stdout.write('(' + str(cpuUsageComp) + ')')
-	print ""	
-		
+	print ""
+
 
 def COREsendMultiple(key, repeat):
 	for e in range (0,repeat):
@@ -65,27 +64,35 @@ def COREsleep(type):
 
 def COREcloseWindow():
 	print "    Close window"
+	print "        Select All"
+	COREsend("^a")
+
 	#move left
+	print "        Move so prompted to save changes"
 	COREsend("{left}")
 	#move right
 	COREsend("{right}")
+	print "        Open File Dialog"
 	COREsend("%f")
+	print "        Close"
 	COREsend("c")
 	#save changes
+	print "        Don't save changes"
 	COREsend("n")
-	#keep clipboard 
+	#keep clipboard
+	print "        Yes to keep on clipboard"
 	COREsend("y")
 
-def COREexportType(fileName, type, resolution):
+def COREexportType(fileName, type, resolution, extraDirectory):
 	if type == "pdf":
-		COREexportPDF(fileName)
-	elif type == "pdfz":		
-		COREexportPDFSpecial(fileName)
+		COREexportPDF(fileName, extraDirectory)
+	elif type == "pdfz":
+		COREexportPDFSpecial(fileName, extraDirectory)
 	else:
-		COREexportTypeSimple(fileName, type, resolution)
+		COREexportTypeSimple(fileName, type, resolution, extraDirectory)
 
-def COREexportPDFSpecial(fileName):
-	print "     Generating Files For: " + fileName 
+def COREexportPDFSpecial(fileName, extraDirectory):
+	print "     Generating Files For: " + fileName
 	file = fileName.split(".")[0]
 	os.system("start " + fileName)
 
@@ -129,19 +136,19 @@ def COREexportPDFSpecial(fileName):
 
 	#Clsoe Window
 	COREcloseWindow()
-	
-	
+
+
 	#decide template
 	mode = "P" #default portrait
 	if width > height:
 		mode = "L"
-	
+
 	testDimension = max(int(float(height)), int(float(width)))
 	otherDimension = min(int(float(height)), int(float(width)))
-	
+
 	pw = 5000
 	ph = 5000
-	
+
 	size = "BIG"
 	if testDimension < 1189 and otherDimension < 841 :
 		size = "A0"
@@ -150,7 +157,7 @@ def COREexportPDFSpecial(fileName):
 			ph = 841
 		else:
 			pw = 841
-			ph = 1189			
+			ph = 1189
 	if testDimension < 841 and otherDimension < 594 :
 		size = "A1"
 		if mode == "L":
@@ -165,16 +172,16 @@ def COREexportPDFSpecial(fileName):
 			pw = 594
 			ph = 420
 		else:
-			pw = 420 
-			ph = 594		
+			pw = 420
+			ph = 594
 	if testDimension < 420 and otherDimension < 297 :
-		size = "A3"		
+		size = "A3"
 		if mode == "L":
 			pw = 420
 			ph = 297
 		else:
-			pw = 297 
-			ph = 420		
+			pw = 297
+			ph = 420
 	if testDimension < 297 and otherDimension < 210 :
 		size = "A4"
 		if mode == "L":
@@ -182,20 +189,20 @@ def COREexportPDFSpecial(fileName):
 			ph = 210
 		else:
 			pw = 210
-			ph = 297	 	
-	
+			ph = 297
+
 	templateName = "template/CORE-pdf-" + size + "-" + mode + ".cdr"
 	#opening template
 	print "    Opening Template: " + templateName
 	os.system("start " + templateName)
 	COREwait()
-	
-	
+
+
 	#paste
 	print "    Paste"
 	COREsend("^v")
 	COREwait()
-	
+
 	#position in middle of page
 	print "    Set in middle of page"
 	COREsend("^{enter}")
@@ -203,57 +210,68 @@ def COREexportPDFSpecial(fileName):
 	COREsend("{tab}")
 	COREsend(ph/2)
 	COREsend("{enter}")
-	
+
 	#publish PDF
 	print "    PublishingPDF"
 	COREsend("%f")
 	COREsend("h")
-	
+
 	#Selecting Resolution"
 	print "    Selecting Quality"
 	COREsendMultiple("{tab}", 2)
 	COREsend("fff")
 	COREsendMultiple("+{tab}", 2)
-	
+
 	#Send FileName
 	print "    Sending FileName"
+	basePath = os.path.dirname(file)
+	file = file.replace(basePath + "\\",  basePath + "\\" + extraDirectory)
 	COREsend(file)
 	COREsend("_S")
-	
+
 	#Save
 	print "    Save"
 	COREsend("{enter}")
-	
+
 	#Overwrite
 	print "    Overwrite"
 	COREsend("y")
-	
+
 	#Close Window
 	COREcloseWindow()
 
-	
-	
-	
-	
+
+
+
+
 
 #
-def COREgenerateFiles(fileName, resolutions):
-	COREexportType(fileName, "pdfz", "")
-	COREexportType(fileName, "pdf", "")
-	COREexportType(fileName, "svg", "")
-	COREexportType(fileName, "dxf", "")
-	COREexportType(fileName, "ai", "")
-	COREexportType(fileName, "eps", "")
-	
+def COREgenerateFiles(fileName, resolutions, extraDirectory):
+
+		#MAKE DIRRECTORY
+	newDir = os.path.dirname(fileName) + "/" + extraDirectory
+	print "     Making Directory: " + newDir
+	try:
+		os.stat(newDir)
+	except:
+		os.mkdir(newDir)
+
+	#COREexportType(fileName, "pdfz", "", extraDirectory)
+	#COREexportType(fileName, "pdf", "", extraDirectory)
+	COREexportType(fileName, "svg", "", extraDirectory)
+	COREexportType(fileName, "dxf", "", extraDirectory)
+	COREexportType(fileName, "ai", "", extraDirectory)
+	COREexportType(fileName, "eps", "", extraDirectory)
+
 	for r in resolutions:
 		COREexportType(fileName, "png", r)
 
 
-def COREgenerateAllFiles(directoryName, resolutions, extras):
+def COREgenerateAllFiles(directoryName, resolutions, extras, extraDirectory):
 	"Generating Resolutions for: " + directoryName
 	for root, _, files in os.walk(directoryName):
 		for f in files:
-			fullName = os.path.join(root, f)
+			fullName = os.path.join(root, extraDirectory + f)
 			try:
 				type= f.split(".")[1]
 			except IndexError:
@@ -268,46 +286,50 @@ def COREgenerateAllFiles(directoryName, resolutions, extras):
 					print "G: " + g + "     " + f
 					if g in f:
 						print "    Generating for File: " + f + "  type: "  + type
-						COREgenerateFiles(fullName, resolutions)
+						COREgenerateFiles(fullName, resolutions, extraDirectory)
 						break
 
 
-def COREexportPDF(fileName):
+def COREexportPDF(fileName, extraDirectory):
 	print "     Generating Files For: " + fileName
 	file = fileName.split(".")[0]
 	os.system("start " + fileName)
 
 	COREwait()
-	
+
 	#publish PDF
 	print "    PublishingPDF"
 	COREsend("%f")
 	COREsend("h")
-	
+
 	#Selecting Resolution"
 	print "    Selecting Quality"
 	COREsendMultiple("{tab}", 2)
 	COREsend("fff")
 	COREsendMultiple("+{tab}", 2)
-	
+
+
+
 	#Send FileName
 	print "    Sending FileName"
+	basePath = os.path.dirname(file)
+	file = file.replace(basePath + "\\",  basePath + "\\" + extraDirectory)
 	COREsend(file)
-	
+
 	#Save
 	print "    Save"
 	COREsend("{enter}")
-	
+
 	#Overwrite
 	print "    Overwrite"
 	COREsend("y")
-	
+
 	#Close Window
 	COREcloseWindow()
 
 
 
-def COREexportTypeSimple(fileName, type, resolution):
+def COREexportTypeSimple(fileName, type, resolution, extraDirectory):
 	print "     Generating Files For: " + fileName + "   Type: " + type
 	file = fileName.split(".")[0]
 	os.system("start " + fileName)
@@ -322,7 +344,7 @@ def COREexportTypeSimple(fileName, type, resolution):
 	print "    Copy"
 	COREsend("^c")
 	COREwait()
-	
+
 	#Clsoe Window
 	COREcloseWindow()
 	#make new file
@@ -333,16 +355,18 @@ def COREexportTypeSimple(fileName, type, resolution):
 	print "    Paste"
 	COREsend("^v")
 	COREwait()
-	
-	
+
+
 	#export
 	print "    Exporting"
 	COREsend("^e")
 	#sending filename
+	basePath = os.path.dirname(file)
+	file = file.replace(basePath + "\\",  basePath + "\\" + extraDirectory)
 	COREsend(file)
 	if resolution <> "":
 		COREsend("_" + resolution)
-	
+
 	#go to type
 	print "    Going to type"
 	COREsend("{tab}")
@@ -351,7 +375,7 @@ def COREexportTypeSimple(fileName, type, resolution):
 	COREsend("{down}")
 	COREsend(type)
 	COREsend(" ")
-	
+
 							#	#scroll to bottom
 							#	print "    Scroll to bottom"
 							#	COREsend("{DOWN}")
@@ -368,7 +392,7 @@ def COREexportTypeSimple(fileName, type, resolution):
 	#overwrite
 	print "    Overwrite"
 	COREsend("y")
-	
+
 	#test for png and adding resolution
 	if type == "png":
 		#adding resolution
@@ -384,7 +408,7 @@ def COREexportTypeSimple(fileName, type, resolution):
 		COREsend("{enter}")
 		COREwait()
 		COREsend("{enter}")
-	
+
 	#save
 	print "    Extra Enter"
 	COREsend("{ENTER}")
@@ -398,7 +422,7 @@ def COREexportTypeSimple(fileName, type, resolution):
 
 
 
-def COREgenerateAllFiles(directoryName, resolutions, extras):
+def COREgenerateAllFiles(directoryName, resolutions, extras, extraDirectory):
 	"Generating Resolutions for: " + directoryName
 	for root, _, files in os.walk(directoryName):
 		for f in files:
@@ -417,7 +441,7 @@ def COREgenerateAllFiles(directoryName, resolutions, extras):
 					print "G: " + g + "     " + f
 					if g in f:
 						print "    Generating for File: " + f + "  type: "  + type
-						COREgenerateFiles(fullName, resolutions)
+						COREgenerateFiles(fullName, resolutions, extraDirectory)
 						break
 
 
@@ -425,7 +449,7 @@ def COREgenerateAllFiles(directoryName, resolutions, extras):
 
 
 
-	
+
 
 
 
@@ -452,6 +476,11 @@ if args['extra'] <> None:
 	extraString = args['extra']
 	extras = extraString.split(",")
 
+extraDirectory=""
+if args['extraDirectory'] <> None:
+	extraDirectory = args['extraDirectory']
+
+
 
 #print "Resolutions: "
 #for b in resolutions:
@@ -462,8 +491,8 @@ if args['extra'] <> None:
 
 if fileName <> "":
 	print "GENERATING FOR FILENAME"
-	COREgenerateFiles(fileName, resolutions)
+	COREgenerateFiles(fileName, resolutions, extraDirectory)
 if directoryName <> "":
 	print "GENERATING FOR DIRECTORY"
-	COREgenerateAllFiles(directoryName, resolutions, extras)
+	COREgenerateAllFiles(directoryName, resolutions, extras, extraDirectory)
 #IMAGgenerateAllImages(directoryName, resolutions)

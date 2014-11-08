@@ -6,6 +6,7 @@ A command line python tool used for generating various file types from a corel d
 * -fi				-- Single File Name
 * -di				-- directory to iterate through
 * -ex				-- extra to check for (ie working or laser required in file name) (list seperated by comas)
+* -ed				-- Extra directory added to output files (ie. gen/ to proof or seperate source from generated)
 
 ## Details
 

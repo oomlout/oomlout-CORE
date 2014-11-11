@@ -299,8 +299,8 @@ def COREgenerateAllFiles(directoryName, resolutions, extras, extraDirectory):
 			#time.sleep(1)
 
 			#make +01 etc okay (fails if more than 10 images
-			print type
-			if type.lower() in ".cdr" and not "backup" in f.lower() and not "_gen" in f.lower():
+			print type + "    " + f +"   " + "working" in f.lower()
+			if type.lower() in ".cdr" and not "backup" in f.lower() and not "_gen" in f.lower() and not ("working" in f.lower()):
 				for g in extras:
 					print "G: " + g + "     " + f
 					if g in f:
@@ -455,7 +455,7 @@ def COREgenerateAllFiles(directoryName, resolutions, extras, extraDirectory):
 
 			#make +01 etc okay (fails if more than 10 images
 			print type
-			if type.lower() in ".cdr" and not "backup" in f.lower()  and not "_gen" in f.lower() and not ".git" in fullName:
+			if type.lower() in ".cdr" and not "backup" in f.lower()  and not "_gen" in f.lower() and not ".git" in fullName and not ("working" in f.lower()):
 				for g in extras:
 					print "G: " + g + "     " + f
 					if g in f:
@@ -479,7 +479,7 @@ def COREgenerateAllFromPDFs(directoryName, resolutions, extraDirectory):
 
 			#make +01 etc okay (fails if more than 10 images
 			print "Type: " + type
-			if type.lower() in ".pdf" and not "backup" in f.lower() and not "_gen" in f.lower()  and not ".git" in fullName:
+			if type.lower() in ".pdf" and not "backup" in f.lower() and not "_gen" in f.lower()  and not ".git" in fullName and not ("working" in f.lower()):
 				for g in extras:
 					print "G: " + g + "     " + f
 					if g in f:

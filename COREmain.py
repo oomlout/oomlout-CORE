@@ -530,7 +530,9 @@ def COREgenerateFromPDF(fullName, resolutions, extraDirectory):
 	COREgenerateFilesFromPDF(fileStart + ".cdr", resolutions, extraDirectory)
 	#renaming cdr file
 	print "renaming corel file to have _GEN at end"
-	os.rename(fileStart + ".cdr", fileStart + "_GEN.cdr")
+	genFileName = fileStart + ".cdr", fileStart + "_GEN.cdr"
+	os.remove(genFileName)
+	os.rename(genFileName)
 
 
 fileName = ""

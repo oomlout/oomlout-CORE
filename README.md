@@ -8,6 +8,7 @@ A command line python tool used for generating various file types from a corel d
 * -ex				-- extra to check for (ie working or laser required in file name) (list seperated by comas)
 * -ed				-- Extra directory added to output files (ie. gen/ to proof or seperate source from generated)
 * -fp				-- Generate values from PDF (if there use this mode TRUE)
+* -ow				-- overwrite Only generate if file doesn't already exist (to overwrite -ow T)
 
 ## Details
 

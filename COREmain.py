@@ -49,7 +49,7 @@ def COREwait():
 		cpuUsageComp = cpuUsage / 10
 		#time.sleep(0.1)
 		sys.stdout.write('(' + str(cpuUsageComp) + ')')
-	print ""
+	#print ""
 
 
 def COREsendMultiple(key, repeat):
@@ -311,10 +311,10 @@ def COREgenerateAllFiles(directoryName, resolutions, extras, extraDirectory):
 			#time.sleep(1)
 
 			#make +01 etc okay (fails if more than 10 images
-			print type + "    " + f +"   " + "working" in f.lower()
+			#print type + "    " + f +"   " + "working" in f.lower()
 			if type.lower() in ".cdr" and not "backup" in f.lower() and not "_gen" in f.lower() and not "_s" in f.lower() and not ("working" in f.lower()):
 				for g in extras:
-					print "G: " + g + "     " + f
+					#print "G: " + g + "     " + f
 					if g in f:
 						print "    Generating for File: " + f + "  type: "  + type
 						COREgenerateFiles(fullName, resolutions, extraDirectory)
@@ -485,10 +485,10 @@ def COREgenerateAllFiles(directoryName, resolutions, extras, extraDirectory):
 			#time.sleep(1)
 
 			#make +01 etc okay (fails if more than 10 images
-			print type
+			#print type
 			if type.lower() in ".cdr" and not "backup" in f.lower()  and not "_gen" in f.lower() and not "_s" in f.lower() and not ".git" in fullName and not ".template" in fullName and not ("working" in f.lower()):
 				for g in extras:
-					print "G: " + g + "     " + f
+					#print "G: " + g + "     " + f
 					if g in f:
 						print "    Generating for File: " + f + "  type: "  + type
 						COREgenerateFiles(fullName, resolutions, extraDirectory)
@@ -509,10 +509,10 @@ def COREgenerateAllFromPDFs(directoryName, resolutions, extraDirectory):
 			#time.sleep(1)
 
 			#make +01 etc okay (fails if more than 10 images
-			print "Type: " + type
+			#print "Type: " + type
 			if type.lower() in ".pdf" and not "backup" in f.lower() and not "_gen" in f.lower()  and not "_s" in f.lower() and not ".git" in fullName and not ("working" in f.lower()):
 				for g in extras:
-					print "G: " + g + "     " + f
+					#print "G: " + g + "     " + f
 					if g in f:
 						print "    Generating for File: " + f + "  type: "  + type
 						COREgenerateFromPDF(fullName, resolutions, extraDirectory)

@@ -311,8 +311,8 @@ def COREgenerateAllFiles(directoryName, resolutions, extras, extraDirectory):
 			#time.sleep(1)
 
 			#make +01 etc okay (fails if more than 10 images
-			#print type + "    " + f +"   " + "working" in f.lower()
-			if type.lower() in ".cdr" and not "backup" in f.lower() and not "_gen" in f.lower() and not "_s" in f.lower() and not ("working" in f.lower()):
+			print type + "    " + f
+			if "cdr" in type.lower() and not "backup" in f.lower() and not "_gen" in f.lower() and not "_s" in f.lower() and not ("working" in f.lower()):
 				for g in extras:
 					#print "G: " + g + "     " + f
 					if g in f:
@@ -457,6 +457,9 @@ def COREexportTypeSimple(fileName, type, resolution, extraDirectory):
 			COREsend(resolution)
 			COREsend("{enter}")
 			COREwait()
+			print "     Sending no transparency colour"
+			COREsend("n")
+			COREwait()
 			COREsend("{enter}")
 
 		#save
@@ -472,27 +475,6 @@ def COREexportTypeSimple(fileName, type, resolution, extraDirectory):
 
 
 
-def COREgenerateAllFiles(directoryName, resolutions, extras, extraDirectory):
-	"Generating Resolutions for: " + directoryName
-	for root, _, files in os.walk(directoryName):
-		for f in files:
-			fullName = os.path.join(root, f)
-			try:
-				type= f.split(".")[1]
-			except IndexError:
-				type = ""
-
-			#time.sleep(1)
-
-			#make +01 etc okay (fails if more than 10 images
-			#print type
-			if type.lower() in ".cdr" and not "backup" in f.lower()  and not "_gen" in f.lower() and not "_s" in f.lower() and not ".git" in fullName and not ".template" in fullName and not ("working" in f.lower()):
-				for g in extras:
-					#print "G: " + g + "     " + f
-					if g in f:
-						print "    Generating for File: " + f + "  type: "  + type
-						COREgenerateFiles(fullName, resolutions, extraDirectory)
-						break
 
 
 

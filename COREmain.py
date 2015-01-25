@@ -128,7 +128,7 @@ def COREexportPDFSpecial(fileName, extraDirectory):
 		if '"' in width: #if inches convert to mm
 			width = width.replace('"',"")
 			width = float(width) * 25.4
-		
+
 		print "        Width:  " + str(width)
 		#getHeight
 		COREsend("{tab}")
@@ -399,6 +399,7 @@ def COREexportTypeSimple(fileName, type, resolution, extraDirectory):
 		print "DONE LOADING"
 		#Select all
 		print "    Select all"
+		COREsend("{F4}")
 		COREsend("^a")
 		#Copy
 		print "    Copy"
@@ -415,13 +416,13 @@ def COREexportTypeSimple(fileName, type, resolution, extraDirectory):
 		print "    Paste"
 		COREsend("^v")
 		COREwait()
+		COREsend("{F4}")
 
 
 		#export
 		print "    Exporting"
 		COREsend("^e")
-		#sending filename
-		COREsend(outputFile)
+
 
 
 		#go to type
@@ -444,6 +445,11 @@ def COREexportTypeSimple(fileName, type, resolution, extraDirectory):
 		print "    Select"
 		COREsend("{ENTER}")
 		#save
+		COREsend("+{tab}")
+		#sending filename
+		COREsend(outputFile)
+
+
 		print "    Save"
 		COREsend("{ENTER}")
 		#overwrite

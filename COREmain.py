@@ -125,7 +125,11 @@ def COREexportPDFSpecial(fileName, extraDirectory):
 		win32clipboard.CloseClipboard()
 		width = width.replace(" mm", "")
 		width = width.replace(",", "")
-		print "        Width:  " + width
+		if '"' in width: #if inches convert to mm
+			width = width.replace('"',"")
+			width = float(width) * 25.4
+		
+		print "        Width:  " + str(width)
 		#getHeight
 		COREsend("{tab}")
 		COREsend("^c")
@@ -134,7 +138,10 @@ def COREexportPDFSpecial(fileName, extraDirectory):
 		win32clipboard.CloseClipboard()
 		height = height.replace(" mm", "")
 		height = height.replace(",", "")
-		print "        Height:  " + height
+		if '"' in height: #if inches convert to mm
+			height = height.replace('"',"")
+			height = float(height) * 25.4
+		print "        Height:  " + str(height)
 		#get back to main window
 		COREsend("{enter}")
 
@@ -461,7 +468,14 @@ def COREexportTypeSimple(fileName, type, resolution, extraDirectory):
 			COREsend("n")
 			COREwait()
 			COREsend("{enter}")
-
+		if type == "ai":
+			print "     Selecting Compatibility CS 1"
+			COREsendMultiple("{UP}", 12)
+			COREwait()
+			COREsendMultiple("{DOWN}", 2)
+			COREwait()
+			COREsend("{enter}")
+			COREwait()
 		#save
 		print "    Extra Enter"
 		COREsend("{ENTER}")

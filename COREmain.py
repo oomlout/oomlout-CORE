@@ -21,6 +21,7 @@ parser.add_argument('-ex','--extra', help='extra string to look for in filename 
 parser.add_argument('-ed','--extraDirectory', help='Extra directory added to output files (ie. gen/ to proof or seperate source from generated)', required=False)
 parser.add_argument('-fp','--fromPDFs', help='generate subset from PDFs (for generated OOBB parts)', required=False)
 parser.add_argument('-ow','--overwrite', help='If there files are overwritten if not only new files created.', required=False)
+parser.add_argument('-w','--workingByass', help='If true then generate files with 'working' in the name.', required=False)
 
 args = vars(parser.parse_args())
 
@@ -125,11 +126,7 @@ def COREexportPDFSpecial(fileName, extraDirectory):
 		win32clipboard.CloseClipboard()
 		width = width.replace(" mm", "")
 		width = width.replace(",", "")
-		if '"' in width: #if inches convert to mm
-			width = width.replace('"',"")
-			width = float(width) * 25.4
-
-		print "        Width:  " + str(width)
+		print "        Width:  " + width
 		#getHeight
 		COREsend("{tab}")
 		COREsend("^c")
@@ -138,10 +135,7 @@ def COREexportPDFSpecial(fileName, extraDirectory):
 		win32clipboard.CloseClipboard()
 		height = height.replace(" mm", "")
 		height = height.replace(",", "")
-		if '"' in height: #if inches convert to mm
-			height = height.replace('"',"")
-			height = float(height) * 25.4
-		print "        Height:  " + str(height)
+		print "        Height:  " + height
 		#get back to main window
 		COREsend("{enter}")
 
@@ -319,13 +313,14 @@ def COREgenerateAllFiles(directoryName, resolutions, extras, extraDirectory):
 
 			#make +01 etc okay (fails if more than 10 images
 			print type + "    " + f
-			if "cdr" in type.lower() and not "backup" in f.lower() and not "_gen" in f.lower() and not "_s" in f.lower() and not ("working" in f.lower()):
-				for g in extras:
-					#print "G: " + g + "     " + f
-					if g in f:
-						print "    Generating for File: " + f + "  type: "  + type
-						COREgenerateFiles(fullName, resolutions, extraDirectory)
-						break
+			if "cdr" in type.lower() and not "backup" in f.lower() and not "_gen" in f.lower() and not "_s" in f.lower():
+				if workingBypass or not ("working" in f.lower()):	#Check if generating working files with bypass (switch -w TRUE)
+					for g in extras:
+						#print "G: " + g + "     " + f
+						if g in f:
+							print "    Generating for File: " + f + "  type: "  + type
+							COREgenerateFiles(fullName, resolutions, extraDirectory)
+							break
 
 
 def COREexportPDF(fileName, extraDirectory):
@@ -399,7 +394,6 @@ def COREexportTypeSimple(fileName, type, resolution, extraDirectory):
 		print "DONE LOADING"
 		#Select all
 		print "    Select all"
-		COREsend("{F4}")
 		COREsend("^a")
 		#Copy
 		print "    Copy"
@@ -416,13 +410,13 @@ def COREexportTypeSimple(fileName, type, resolution, extraDirectory):
 		print "    Paste"
 		COREsend("^v")
 		COREwait()
-		COREsend("{F4}")
 
 
 		#export
 		print "    Exporting"
 		COREsend("^e")
-
+		#sending filename
+		COREsend(outputFile)
 
 
 		#go to type
@@ -445,11 +439,6 @@ def COREexportTypeSimple(fileName, type, resolution, extraDirectory):
 		print "    Select"
 		COREsend("{ENTER}")
 		#save
-		COREsend("+{tab}")
-		#sending filename
-		COREsend(outputFile)
-
-
 		print "    Save"
 		COREsend("{ENTER}")
 		#overwrite
@@ -474,14 +463,7 @@ def COREexportTypeSimple(fileName, type, resolution, extraDirectory):
 			COREsend("n")
 			COREwait()
 			COREsend("{enter}")
-		if type == "ai":
-			print "     Selecting Compatibility CS 1"
-			COREsendMultiple("{UP}", 12)
-			COREwait()
-			COREsendMultiple("{DOWN}", 2)
-			COREwait()
-			COREsend("{enter}")
-			COREwait()
+
 		#save
 		print "    Extra Enter"
 		COREsend("{ENTER}")
@@ -604,6 +586,10 @@ if args['extra'] <> None:
 extraDirectory=""
 if args['extraDirectory'] <> None:
 	extraDirectory = args['extraDirectory']
+
+workingBypass=""
+if args['workingBypass'] <> None:
+	workingBypass = True
 
 
 fromPDF=""

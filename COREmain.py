@@ -21,7 +21,7 @@ parser.add_argument('-ex','--extra', help='extra string to look for in filename 
 parser.add_argument('-ed','--extraDirectory', help='Extra directory added to output files (ie. gen/ to proof or seperate source from generated)', required=False)
 parser.add_argument('-fp','--fromPDFs', help='generate subset from PDFs (for generated OOBB parts)', required=False)
 parser.add_argument('-ow','--overwrite', help='If there files are overwritten if not only new files created.', required=False)
-parser.add_argument('-w','--workingByass', help='If true then generate files with working in the name.', required=False)
+parser.add_argument('-w','--workingBypass', help='If true then generate files with working in the name.', required=False)
 
 args = vars(parser.parse_args())
 
@@ -589,6 +589,7 @@ if args['extraDirectory'] <> None:
 
 workingBypass=""
 if args['workingBypass'] <> None:
+	print "Working Bypass"
 	workingBypass = True
 
 

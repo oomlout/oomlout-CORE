@@ -35,13 +35,16 @@ overwrite = False
 shell = win32com.client.Dispatch("WScript.Shell")
 
 sleepTimeLong = 5
+#sleepTimeLong = 8 #longer wait
 sleepTime = 2
+#sleepTime = 5 #longer wait
 
 
 
 def COREwait():
 	cpuUsageComp = 100
 	while cpuUsageComp > 5:
+	#while cpuUsageComp > 15:  #longer wait
 		cpuUsage = 0
 		for i in range (1,10):
 			cpuUsage = psutil.cpu_percent(interval=0.25) + cpuUsage
@@ -314,7 +317,7 @@ def COREgenerateAllFiles(directoryName, resolutions, extras, extraDirectory):
 			#make +01 etc okay (fails if more than 10 images
 			print type + "    " + f
 			if "cdr" in type.lower() and not "backup" in f.lower() and not "_gen" in f.lower() and not "_s" in f.lower():
-				if workingBypass or not ("working" in f.lower()):	#Check if generating working files with bypass (switch -w TRUE)
+				if workingBypass or not ("working" in f.lower()) and not ("old01" in f.lower()):	#Check if generating working files with bypass (switch -w TRUE)
 					for g in extras:
 						#print "G: " + g + "     " + f
 						if g in f:

@@ -109,7 +109,7 @@ def COREexportPDFSpecial(fileName, extraDirectory):
 
 		print "     Generating Files For: " + fileName
 
-		os.system("start " + fileName)
+		os.system('start "" "' + fileName + '"')
 
 		COREwait()
 
@@ -339,7 +339,7 @@ def COREexportPDF(fileName, extraDirectory):
 
 		print "     Generating Files For: " + fileName
 
-		os.system("start " + fileName)
+		os.system('start "" "' + fileName + '"')
 
 		COREwait()
 
@@ -390,7 +390,7 @@ def COREexportTypeSimple(fileName, type, resolution, extraDirectory):
 
 		print "     Generating Files For: " + fileName + "   Type: " + type
 
-		os.system("start " + fileName)
+		os.system('start "" "' + fileName + '"')
 
 		COREwait()
 

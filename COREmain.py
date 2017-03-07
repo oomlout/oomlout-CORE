@@ -303,7 +303,7 @@ def COREgenerateFilesFromPDF(fileName, resolutions, extraDirectory):
 		COREexportType(fileName, "png", r, extraDirectory)
 
 def COREgenerateAllFiles(directoryName, resolutions, extras, extraDirectory):
-	"Generating Resolutions for: " + directoryName
+	print "Generating Resolutions for: " + directoryName
 	for root, _, files in os.walk(directoryName):
 		for f in files:
 			fullName = os.path.join(root, extraDirectory + f)

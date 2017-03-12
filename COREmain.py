@@ -243,7 +243,8 @@ def COREexportPDFSpecial(fileName, extraDirectory):
 		print "    Sending FileName"
 
 
-		COREsend(outputFile)
+		oFile = outputFile.replace("/", "\\")
+		COREsend(oFile)
 
 
 		#Save
@@ -306,7 +307,8 @@ def COREgenerateAllFiles(directoryName, resolutions, extras, extraDirectory):
 	print "Generating Resolutions for: " + directoryName
 	for root, _, files in os.walk(directoryName):
 		for f in files:
-			fullName = os.path.join(root, extraDirectory + f)
+#fullName = os.path.join(root, extraDirectory + f)
+			fullName = os.path.join(root, f)	
 			try:
 				type= f.split(".")[1]
 			except IndexError:
@@ -358,8 +360,9 @@ def COREexportPDF(fileName, extraDirectory):
 
 		#Send FileName
 		print "    Sending FileName"
-
-		COREsend(outputFile)
+		oFile = outputFile.replace("/", "\\")
+		COREsend(oFile)
+		
 
 		#Save
 		print "    Save"
@@ -419,7 +422,8 @@ def COREexportTypeSimple(fileName, type, resolution, extraDirectory):
 		print "    Exporting"
 		COREsend("^e")
 		#sending filename
-		COREsend(outputFile)
+		oFile = outputFile.replace("/", "\\")
+		COREsend(oFile)
 
 
 		#go to type

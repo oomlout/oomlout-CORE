@@ -34,10 +34,10 @@ overwrite = False
 
 shell = win32com.client.Dispatch("WScript.Shell")
 
-sleepTimeLong = 5
-#sleepTimeLong = 8 #longer wait
-sleepTime = 2
-#sleepTime = 5 #longer wait
+#sleepTimeLong = 5
+sleepTimeLong = 8 #longer wait
+#sleepTime = 2
+sleepTime = 5 #longer wait
 
 
 

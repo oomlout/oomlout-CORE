@@ -43,8 +43,8 @@ sleepTime = 5 #longer wait
 
 def COREwait():
 	cpuUsageComp = 100
-	while cpuUsageComp > 5:
-	#while cpuUsageComp > 15:  #longer wait
+	#while cpuUsageComp > 5:
+	while cpuUsageComp > 15:  #longer wait
 		cpuUsage = 0
 		for i in range (1,10):
 			cpuUsage = psutil.cpu_percent(interval=0.25) + cpuUsage
@@ -54,6 +54,7 @@ def COREwait():
 		#time.sleep(0.1)
 		sys.stdout.write('(' + str(cpuUsageComp) + ')')
 	#print ""
+	COREsleep("long")
 
 
 def COREsendMultiple(key, repeat):
@@ -231,6 +232,7 @@ def COREexportPDFSpecial(fileName, extraDirectory):
 		#publish PDF
 		print "    PublishingPDF"
 		COREsend("%f")
+		COREwait()
 		COREsend("h")
 		COREwait()
 
@@ -355,7 +357,9 @@ def COREexportPDF(fileName, extraDirectory):
 		#publish PDF
 		print "    PublishingPDF"
 		COREsend("%f")
+		COREwait()
 		COREsend("h")
+		COREwait()
 
 		#Selecting Resolution"
 		print "    Selecting Quality"

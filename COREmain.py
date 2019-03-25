@@ -2,6 +2,7 @@
 
 import sys, os
 import time
+
 import win32gui
 import win32com
 import win32com.client
@@ -44,14 +45,17 @@ sleepTime = 5 #longer wait
 def COREwait():
 	cpuUsageComp = 100
 	#while cpuUsageComp > 5:
-	while cpuUsageComp > 15:  #longer wait
+	while cpuUsageComp > 8:
+	#while cpuUsageComp > 15:  #longer wait
 		cpuUsage = 0
 		for i in range (1,10):
 			cpuUsage = psutil.cpu_percent(interval=0.25) + cpuUsage
 			sys.stdout.write('.')
 			#print cpuUsage/i
+			time.sleep(0.1)
 		cpuUsageComp = cpuUsage / 10
-		#time.sleep(0.1)
+		time.sleep(0.1)
+
 		sys.stdout.write('(' + str(cpuUsageComp) + ')')
 	#print ""
 	COREsleep("long")

@@ -36,9 +36,10 @@ overwrite = False
 shell = win32com.client.Dispatch("WScript.Shell")
 
 #sleepTimeLong = 5
-sleepTimeLong = 8 #longer wait
-#sleepTime = 2
-sleepTime = 5 #longer wait
+sleepTimeLong = 10 #longer wait
+sleepTime = 8
+#sleepTime = 5 #longer wait
+sleepTimeShort = 1
 
 
 
@@ -67,9 +68,11 @@ def COREsendMultiple(key, repeat):
 
 def COREsend(key):
 	shell.SendKeys(key, 0)
-	COREsleep("")
+	COREsleep("short")
 
 def COREsleep(type):
+	if type == "short":
+		time.sleep(sleepTimeShort)
 	if type == "long":
 		time.sleep(sleepTimeLong)
 	if type == "":

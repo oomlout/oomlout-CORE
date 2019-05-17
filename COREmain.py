@@ -341,8 +341,15 @@ def COREgenerateAllFiles(directoryName, resolutions, extras, extraDirectory):
 						if g in f:
 							print "    Generating for File: " + f + "  type: "  + type
 							COREgenerateFiles(fullName, resolutions, extraDirectory)
+							
 							break
+					
 
+def COREcloseCorelDraw():
+	shell.SendKeys("%{F4}", 0)
+	COREsleep("long")
+	shell.SendKeys("{ESC}", 0)
+	COREsleep("short")
 
 def COREexportPDF(fileName, extraDirectory):
 	file = fileName.split(".")[0]
@@ -499,6 +506,9 @@ def COREexportTypeSimple(fileName, type, resolution, extraDirectory):
 		COREsend("{ENTER}")
 		#Close Window
 		COREcloseWindow()
+		
+		if type == "ai":
+			COREcloseCorelDraw()
 
 
 

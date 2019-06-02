@@ -274,12 +274,6 @@ def COREexportPDFSpecial(fileName, extraDirectory):
 		#Close Window
 		COREcloseWindow()
 
-
-
-
-
-
-#
 def COREgenerateFiles(fileName, resolutions, extraDirectory):
 
 		#MAKE DIRRECTORY
@@ -290,16 +284,15 @@ def COREgenerateFiles(fileName, resolutions, extraDirectory):
 	except:
 		os.mkdir(newDir)
 
-	COREexportType(fileName, "pdfz", "", extraDirectory)
-	COREexportType(fileName, "pdf", "", extraDirectory)
-	COREexportType(fileName, "svg", "", extraDirectory)
-	COREexportType(fileName, "dxf", "", extraDirectory)
-	COREexportType(fileName, "ai", "", extraDirectory)
-	COREexportType(fileName, "eps", "", extraDirectory)
+	#COREexportType(fileName, "pdfz", "", extraDirectory)
+	#COREexportType(fileName, "pdf", "", extraDirectory)
+	#COREexportType(fileName, "svg", "", extraDirectory)
+	#COREexportType(fileName, "dxf", "", extraDirectory)
+	#COREexportType(fileName, "ai", "", extraDirectory)
+	#COREexportType(fileName, "eps", "", extraDirectory)
 
 	for r in resolutions:
 		COREexportType(fileName, "png", r, extraDirectory)
-
 
 def COREgenerateFilesFromPDF(fileName, resolutions, extraDirectory):
 
@@ -321,29 +314,30 @@ def COREgenerateFilesFromPDF(fileName, resolutions, extraDirectory):
 
 def COREgenerateAllFiles(directoryName, resolutions, extras, extraDirectory):
 	print "Generating Resolutions for: " + directoryName
-	for root, _, files in os.walk(directoryName):
+	for root, dirs, files in os.walk(directoryName, topdown=True):
+		#dirs.sort(reverse=True)	#iterate in reverse
 		for f in files:
+		#for f in files[::-1]:  #iterate in reverse
 #fullName = os.path.join(root, extraDirectory + f)
 			fullName = os.path.join(root, f)
 			try:
-				type= f.split(".")[1]
+				types= f.split(".")[1]
 			except IndexError:
-				type = ""
+				types = ""
 
 			#time.sleep(1)
 
 			#make +01 etc okay (fails if more than 10 images
-			print type + "    " + f
-			if "cdr" in type.lower() and not "backup" in f.lower() and not "_gen" in f.lower() and not "_s" in f.lower():
+			print types + "    " + f
+			if "cdr" in types.lower() and not "backup" in f.lower() and not "_gen" in f.lower() and not "_s" in f.lower():
 				if workingBypass or not ("working" in f.lower()) and not ("old01" in f.lower()):	#Check if generating working files with bypass (switch -w TRUE)
 					for g in extras:
 						#print "G: " + g + "     " + f
 						if g in f:
-							print "    Generating for File: " + f + "  type: "  + type
+							print "    Generating for File: " + f + "  types: "  + types
 							COREgenerateFiles(fullName, resolutions, extraDirectory)
 							
 							break
-					
 
 def COREcloseCorelDraw():
 	shell.SendKeys("%{F4}", 0)
@@ -399,8 +393,6 @@ def COREexportPDF(fileName, extraDirectory):
 
 		#Close Window
 		COREcloseWindow()
-
-
 
 def COREexportTypeSimple(fileName, type, resolution, extraDirectory):
 	file = fileName.split(".")[0]
@@ -510,11 +502,6 @@ def COREexportTypeSimple(fileName, type, resolution, extraDirectory):
 		if type == "ai":
 			COREcloseCorelDraw()
 
-
-
-
-
-
 def COREgenerateAllFromPDFs(directoryName, resolutions, extraDirectory):
 	"Generating Resolutions for: " + directoryName
 	for root, _, files in os.walk(directoryName):
@@ -536,8 +523,6 @@ def COREgenerateAllFromPDFs(directoryName, resolutions, extraDirectory):
 						print "    Generating for File: " + f + "  type: "  + type
 						COREgenerateFromPDF(fullName, resolutions, extraDirectory)
 						break
-
-
 
 def COREgenerateFromPDF(fullName, resolutions, extraDirectory):
 	fileStart = fullName.split(".")[0]
@@ -597,6 +582,8 @@ def COREgenerateFromPDF(fullName, resolutions, extraDirectory):
 
 
 fileName = ""
+
+
 if args['file'] <> None:
 	fileName = args['file']
 	print "Generating Files for: " + fileName

@@ -99,11 +99,13 @@ def COREcloseWindow():
 	print "        Yes to keep on clipboard"
 	COREsend("y")
 
-def COREexportType(fileName, type, resolution, extraDirectory):
+def COREexportType(fileName, type, resolution, extraDirectory, resolutions):
 	if type == "pdf":
 		COREexportPDF(fileName, extraDirectory)
 	elif type == "pdfz":
 		COREexportPDFSpecial(fileName, extraDirectory)
+	elif type == "png":
+		COREexportPNGSpecial(fileName, extraDirectory, resolutions)
 	else:
 		COREexportTypeSimple(fileName, type, resolution, extraDirectory)
 
@@ -284,15 +286,13 @@ def COREgenerateFiles(fileName, resolutions, extraDirectory):
 	except:
 		os.mkdir(newDir)
 
-	#COREexportType(fileName, "pdfz", "", extraDirectory)
-	#COREexportType(fileName, "pdf", "", extraDirectory)
-	#COREexportType(fileName, "svg", "", extraDirectory)
-	#COREexportType(fileName, "dxf", "", extraDirectory)
-	#COREexportType(fileName, "ai", "", extraDirectory)
-	#COREexportType(fileName, "eps", "", extraDirectory)
-
-	for r in resolutions:
-		COREexportType(fileName, "png", r, extraDirectory)
+	#COREexportType(fileName, "pdfz", "", extraDirectory,"")
+	#COREexportType(fileName, "pdf", "", extraDirectory,"")
+	#COREexportType(fileName, "svg", "", extraDirectory,"")
+	#COREexportType(fileName, "dxf", "", extraDirectory,"")
+	#COREexportType(fileName, "ai", "", extraDirectory,"")
+	#COREexportType(fileName, "eps", "", extraDirectory,"")
+	COREexportType(fileName, "png", "", extraDirectory,resolutions)
 
 def COREgenerateFilesFromPDF(fileName, resolutions, extraDirectory):
 
@@ -315,7 +315,7 @@ def COREgenerateFilesFromPDF(fileName, resolutions, extraDirectory):
 def COREgenerateAllFiles(directoryName, resolutions, extras, extraDirectory):
 	print "Generating Resolutions for: " + directoryName
 	for root, dirs, files in os.walk(directoryName, topdown=True):
-		#dirs.sort(reverse=True)	#iterate in reverse
+		dirs.sort(reverse=True)	#iterate in reverse
 		for f in files:
 		#for f in files[::-1]:  #iterate in reverse
 #fullName = os.path.join(root, extraDirectory + f)
@@ -394,21 +394,29 @@ def COREexportPDF(fileName, extraDirectory):
 		#Close Window
 		COREcloseWindow()
 
-def COREexportTypeSimple(fileName, type, resolution, extraDirectory):
+def COREexportPNGSpecial(fileName, extraDirectory, resolutions):
 	file = fileName.split(".")[0]
 	basePath = os.path.dirname(file)
-	outputFile = file.replace(basePath + "\\",  basePath + "\\" + extraDirectory)
+	outputFileBase = file.replace(basePath + "\\",  basePath + "\\" + extraDirectory)
 
-	if resolution <> "":
-		outputFile = outputFile + "_" + resolution
+	if resolutions <> "":
+		outputFile = outputFileBase + "_" + resolutions[0]
+		outputFile = outputFile + ".png"
+
+	#see if any files missing
+	test = False
+	for r in resolutions:
+		outputFile = outputFileBase + "_" + r
+		outputFile = outputFile + ".png"
+		#print "Testing file: " + outputFile
+		if not os.path.isfile(outputFile):
+			#print "     NOT FOUND"
+			test = True 
+		
+	if overwrite or test:
 
 
-	outputFile = outputFile + "." + type
-
-	if overwrite or not os.path.isfile(outputFile):
-
-
-		print "     Generating Files For: " + fileName + "   Type: " + type
+		print "     Generating Files For: " + fileName + "   Type: png"
 
 		os.system('start "" "' + fileName + '"')
 
@@ -435,73 +443,81 @@ def COREexportTypeSimple(fileName, type, resolution, extraDirectory):
 		COREwait()
 
 
-		#export
-		print "    Exporting"
-		COREsend("^e")
-		#sending filename
-		oFile = outputFile.replace("/", "\\")
-		COREsend(oFile)
-
-
-		#go to type
-		print "    Going to type"
-		COREsend("{tab}")
-		#send type plus space
-		print "    Selecting " + type
-		COREsend("{down}")
-		COREsend(type)
-		COREsend(" ")
-
-								#	#scroll to bottom
-								#	print "    Scroll to bottom"
-								#	COREsend("{DOWN}")
-								#	COREsendMultiple("{PGDN}", 4)
-								#	#go up to SVG
-								#	print "    Go up to " & ind
-								#	COREsendMultiple("{up}", ind)
-		#select
-		print "    Select"
-		COREsend("{ENTER}")
-		#save
-		print "    Save"
-		COREsend("{ENTER}")
-		#overwrite
-		print "    Overwrite"
-		COREsend("y")
-
+		
 		#test for png and adding resolution
-		if type == "png":
-			#adding resolution
-			print "        Adding Resolution"
-			COREsendMultiple("{tab}",2)
-			#select Pixels
-			COREsend("pix")
-			COREsend("{enter}")
-			#return to width
-			COREsendMultiple("+{tab}",2)
-			#send width
-			COREsend(resolution)
-			COREsend("{enter}")
-			COREwait()
-			print "     Sending no transparency colour"
-			COREsend("n")
-			COREwait()
-			COREsend("{enter}")
+		start = True
+		
+		for r in resolutions:
+		
+			outputFile = outputFileBase + "_" + r
+			outputFile = outputFile + ".png"
+			if not os.path.isfile(outputFile):
+				#export
+				print "    Exporting"
+				COREsend("^e")
+				#sending filename
+				oFile = outputFile.replace("/", "\\")
+				COREsend(oFile)
 
-		#save
-		print "    Extra Enter"
-		COREsend("{ENTER}")
-		print "    Extra Enter"
-		COREsend("{ENTER}")
-		#delay
-		COREwait()
-		COREsend("{ENTER}")
+				if start: 
+					#go to type
+					print "    Going to type"
+					COREsend("{tab}")
+					#send type plus space
+					print "    Selecting png"
+					COREsend("{down}")
+					COREsend("png")
+					COREsend(" ")
+
+											#	#scroll to bottom
+											#	print "    Scroll to bottom"
+											#	COREsend("{DOWN}")
+											#	COREsendMultiple("{PGDN}", 4)
+											#	#go up to SVG
+											#	print "    Go up to " & ind
+											#	COREsendMultiple("{up}", ind)
+					#select
+					print "    Select"
+					COREsend("{ENTER}")
+				#save
+				print "    Save"
+				COREsend("{ENTER}")
+				#overwrite
+				print "    Overwrite"
+				COREsend("y")
+				
+				#adding resolution
+				print "        Adding Resolution  " + r
+				if start:
+					COREsendMultiple("{tab}",2)
+					#select Pixels
+					COREsend("pix")
+					COREsend("{enter}")
+					#return to width
+					COREsendMultiple("+{tab}",2)
+				#send width
+				COREsend("{backspace}")
+				COREsend(r)
+				COREsend("{enter}")
+				COREwait()
+				if start:
+					print "     Sending no transparency colour"
+					COREsend("n")
+					COREwait()
+				COREsend("{enter}")
+
+				#save
+				print "    Extra Enter"
+				COREsend("{ENTER}")
+				print "    Extra Enter"
+				COREsend("{ENTER}")
+				#delay
+				COREwait()
+				COREsend("{ENTER}")
+				start = False
 		#Close Window
 		COREcloseWindow()
 		
-		if type == "ai":
-			COREcloseCorelDraw()
-
 def COREgenerateAllFromPDFs(directoryName, resolutions, extraDirectory):
 	"Generating Resolutions for: " + directoryName
 	for root, _, files in os.walk(directoryName):

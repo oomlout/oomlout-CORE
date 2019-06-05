@@ -286,12 +286,12 @@ def COREgenerateFiles(fileName, resolutions, extraDirectory):
 	except:
 		os.mkdir(newDir)
 
-	#COREexportType(fileName, "pdfz", "", extraDirectory,"")
-	#COREexportType(fileName, "pdf", "", extraDirectory,"")
-	#COREexportType(fileName, "svg", "", extraDirectory,"")
-	#COREexportType(fileName, "dxf", "", extraDirectory,"")
-	#COREexportType(fileName, "ai", "", extraDirectory,"")
-	#COREexportType(fileName, "eps", "", extraDirectory,"")
+	COREexportType(fileName, "pdfz", "", extraDirectory,"")
+	COREexportType(fileName, "pdf", "", extraDirectory,"")
+	COREexportType(fileName, "svg", "", extraDirectory,"")
+	COREexportType(fileName, "dxf", "", extraDirectory,"")
+	COREexportType(fileName, "ai", "", extraDirectory,"")
+	COREexportType(fileName, "eps", "", extraDirectory,"")
 	COREexportType(fileName, "png", "", extraDirectory,resolutions)
 
 def COREgenerateFilesFromPDF(fileName, resolutions, extraDirectory):
@@ -596,6 +596,110 @@ def COREgenerateFromPDF(fullName, resolutions, extraDirectory):
 		"No File to Remove"
 	os.rename(fileStart + ".cdr", outputFile)
 
+def COREexportTypeSimple(fileName, type, resolution, extraDirectory):
+	file = fileName.split(".")[0]
+	basePath = os.path.dirname(file)
+	outputFile = file.replace(basePath + "\\",  basePath + "\\" + extraDirectory)
+
+	if resolution <> "":
+		outputFile = outputFile + "_" + resolution
+
+
+	outputFile = outputFile + "." + type
+
+	if overwrite or not os.path.isfile(outputFile):
+
+
+		print "     Generating Files For: " + fileName + "   Type: " + type
+
+		os.system('start "" "' + fileName + '"')
+
+		COREwait()
+
+		print "DONE LOADING"
+		#Select all
+		print "    Select all"
+		COREsend("^a")
+		#Copy
+		print "    Copy"
+		COREsend("^c")
+		COREwait()
+
+		#Clsoe Window
+		COREcloseWindow()
+		#make new file
+		print "    Make new file"
+		COREsend("^n")
+		COREwait()
+		#paste
+		print "    Paste"
+		COREsend("^v")
+		COREwait()
+
+
+		#export
+		print "    Exporting"
+		COREsend("^e")
+		#sending filename
+		oFile = outputFile.replace("/", "\\")
+		COREsend(oFile)
+
+
+		#go to type
+		print "    Going to type"
+		COREsend("{tab}")
+		#send type plus space
+		print "    Selecting " + type
+		COREsend("{down}")
+		COREsend(type)
+		COREsend(" ")
+
+								#	#scroll to bottom
+								#	print "    Scroll to bottom"
+								#	COREsend("{DOWN}")
+								#	COREsendMultiple("{PGDN}", 4)
+								#	#go up to SVG
+								#	print "    Go up to " & ind
+								#	COREsendMultiple("{up}", ind)
+		#select
+		print "    Select"
+		COREsend("{ENTER}")
+		#save
+		print "    Save"
+		COREsend("{ENTER}")
+		#overwrite
+		print "    Overwrite"
+		COREsend("y")
+
+		#test for png and adding resolution
+		if type == "png":
+			#adding resolution
+			print "        Adding Resolution"
+			COREsendMultiple("{tab}",2)
+			#select Pixels
+			COREsend("pix")
+			COREsend("{enter}")
+			#return to width
+			COREsendMultiple("+{tab}",2)
+			#send width
+			COREsend(resolution)
+			COREsend("{enter}")
+			COREwait()
+			print "     Sending no transparency colour"
+			COREsend("n")
+			COREwait()
+			COREsend("{enter}")
+
+		#save
+		print "    Extra Enter"
+		COREsend("{ENTER}")
+		print "    Extra Enter"
+		COREsend("{ENTER}")
+		#delay
+		COREwait()
+		COREsend("{ENTER}")
+		#Close Window
+		COREcloseWindow()
 
 fileName = ""
 
